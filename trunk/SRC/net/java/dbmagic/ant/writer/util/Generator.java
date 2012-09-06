@@ -29,7 +29,7 @@ public class Generator {
 	public Generator() throws Exception {		
 		ve.setProperty("resource.loader" , "class");
 		ve.setProperty("class.resource.loader.class" , "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
-		ve.setProperty("runtime.log.logsystem.class" , "sv.dbmagic.ant.writer.util.VelocityLog");
+		ve.setProperty("runtime.log.logsystem.class" , "net.java.dbmagic.ant.writer.util.VelocityLog");
 		
 		ve.init();
 	}
