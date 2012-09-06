@@ -1,0 +1,207 @@
+<?xml encoding="ISO-8859-1" ?>
+
+<!--
+  -----------------
+  SysVision DBMagic
+  -----------------
+
+  Copyright 2006-2012 SysVision - Consultadoria e Desenvolvimento em Sistemas de Informática, Lda.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  	http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+--> 
+
+<!-- Root element-->
+
+<!ELEMENT model (description?, entity*, query*)>
+
+<!--Descrição do modelo de dados-->
+<!ELEMENT description (#PCDATA)>
+
+<!--Corresponde à tabela-->
+<!ELEMENT entity (description?, sql?, primary-key?, column*, version-control-column?, foreign-key*, index*, finder*, operation*)>
+
+<!--name - Nome da tabela (usar _ para separar palavras)
+read-only - Deve ser true para views, ou tabela para as quais não queremos autorizar alterações-->
+<!ATTLIST entity name CDATA #REQUIRED
+		         read-only (true|false) "false">
+
+<!-- query SQL-->
+<!ELEMENT sql (#PCDATA)>
+
+<!--Coluna da tabela-->
+<!ELEMENT column EMPTY>
+
+<!--name - Nome da coluna (usar _ para separar palavras)
+java-type - Tipos de dados da coluna, usamos tipos java para ser independente do SGBD usado, os tipos válidos são:
+		byte
+		short
+		int
+		long
+		float
+		double
+		java.math.BigDecimal
+		boolean
+		String
+		byte[]
+		java.sql.Date
+		java.sql.Time
+		java.sql.Timestamp
+max-size - Tamanho maximo da coluna (aplica-se às Strings e BigDecimal)
+fixed-size - Indica que o tamanho é fixo (aplica-se às Strings)
+decimal-digits - Numero de casas decimais (aplica-se aos BigDecimal)
+nullable - Indica se pode aceitar NULLs-->
+<!ATTLIST column name CDATA #REQUIRED
+		         java-type CDATA #REQUIRED
+		         max-size CDATA #IMPLIED
+		         fixed-size (true|false) "false"
+		         decimal-digits CDATA #IMPLIED
+		         nullable (true|false) "true">
+
+<!--Permite definir a chave primária-->
+<!ELEMENT primary-key (key-generator?, column+)>
+
+<!--
+Indica o tipo de gerador de valores para a chave primária a usar.
+
+Seguem as propriedades a usar consuante o tipo usado
+	1. MAX - Propriedades:
+	   column-name - Nome da coluna a incrementar
+	   
+	2. NATIVE - Propriedades:
+	   (Não tem)
+	   
+	3. TABLE - Propriedades:
+	   table-name - Nome da tabela
+	   name-column - Nome da coluna usada para identificar o registo
+	   value-column - Nome da coluna que contem o ultimo ID
+	   			      
+	   			      SELECT <value-column>+1 FROM <table-name> WHERE <name-column> = '<entity>'
+	   			
+	4. SEQUENCE - Propriedades:
+	   sequence-name - Nome da sequencia (SÓ PARA ORACLE)
+-->
+<!ELEMENT key-generator (property*)>
+
+<!--Indica o tipo de gerador-->
+<!ATTLIST key-generator type (max|native|table|sequence) #REQUIRED>
+
+<!--Permite o valor de propriedades-->
+<!ELEMENT property EMPTY>
+
+<!--name - Nome da propriedade
+value - Valor da propriedade-->
+<!ATTLIST property name CDATA #REQUIRED
+				   value CDATA #REQUIRED>
+					 
+<!--Permite adicionar uma coluna à tabela cujo valor é alterado sempre que é efetuado uma alteração ao registo.-->
+<!ELEMENT version-control-column (column)>
+					 
+<!-- Permite definir chaves estranjeiras -->
+<!ELEMENT foreign-key (foreign-column+)>
+
+<!--referenced-entity - Nome da tabela referenciada
+one-to-one - Permite indicar que a cardinalidade da referencia é 1 para 1-->
+<!ATTLIST foreign-key referenced-entity CDATA #REQUIRED
+                      one-to-one (true|false) "false">
+
+<!--Colunas que pertencem à chave estranjeira-->
+<!ELEMENT foreign-column EMPTY>
+
+<!--column-name - Nome da coluna na tabela
+referenced-column - Nome da coluna na tabela referenciada-->
+<!ATTLIST foreign-column column-name CDATA #REQUIRED
+		                 referenced-column CDATA #REQUIRED>
+
+<!--Permite definir os indices a criar-->
+<!ELEMENT index (index-column+)>
+
+<!--name - Nome do indice
+unique - Indica que o indice não permite duplicados-->
+<!ATTLIST index name CDATA #REQUIRED
+                unique (true|false) "false">
+
+<!--Colunas que pertencem ao indice-->
+<!ELEMENT index-column EMPTY>
+
+<!--column-name - Nome da coluna na tabela-->
+<!ATTLIST index-column column-name CDATA #REQUIRED>
+
+<!--Permite definir pesquisas-->
+<!ELEMENT finder (where, parameter*)>
+
+<!--name - Nome da pesquisa (será criado um método com este nome)
+return-type - Tipo de retorno que a pesquisa deve devolver 
+		     Quando se indica que o return-type é void será adicionado um parametro (callback)
+distinct-rows - Indica que só devem ser devolvidas linhas distintas
+with-limits - Indica que a pesquisa deve permitir indicar intervalos de dados (exemplo: 100 registos a partir do 1001)
+  -->
+<!ATTLIST finder name CDATA #REQUIRED
+                 return-type (Object|Collection|void) "Collection"
+                 distinct-rows (true|false) "false"
+                 with-limits (true|false) "false">
+                 
+<!--Clausa WHERE a usar para a pesquisa
+
+Os valores para os parametros da pesquisa devem ser representados por ?:
+Exemplo: compra_id=? and estado_id=?-->
+<!ELEMENT where (#PCDATA)>                 
+                 
+<!--Parametro da pesquisa-->
+<!ELEMENT parameter EMPTY>      
+
+<!--name - Nome do parametro
+java-type - Tipo de dados
+
+NOTA: Se im parametro é usado mais de uma vez na query, deve ser repetido nos parametros-->
+<!ATTLIST parameter name CDATA #REQUIRED
+		            java-type CDATA #REQUIRED>        
+		            
+<!--Permite indicar operações, que afectem os registos da tabela-->
+<!ELEMENT operation (sql, parameter*)>
+
+<!-- name - Nome da operação -->
+<!ATTLIST operation name CDATA #REQUIRED>		 
+
+<!--Permite definir querys-->
+<!ELEMENT query (description?, return-object, sql, (filter|parameter*))>    
+
+<!--name - Nome da query
+return-type - Objecto repornado-->
+<!ATTLIST query name CDATA #REQUIRED
+                return-type (Object|Collection) "Collection">            
+                                
+<!--Indica que se predente indicar as restrições à query passando como parametro um objecto do tipo Filtro (sjtools)-->
+<!ELEMENT filter EMPTY>  
+
+<!--Permite definir tipo o mapeamento das colunas da query para o objecto retornado
+  
+NOTA: Por agora so se deve usar o field-map
+  -->                
+<!ELEMENT return-object (column-name|column-position|field-map+)>
+
+<!--class-name - Classe java à qual pertencem os objectos a devolver-->
+<!ATTLIST return-object class-name CDATA #REQUIRED>
+
+<!--Permite definir o mapeamento das colunas da query para os campos do objecto-->
+<!ELEMENT field-map (column-name|column-position)>
+
+<!--field-name - Nome do campo do objecto
+java-type - Tipo de dados do campo-->
+<!ATTLIST field-map field-name CDATA #REQUIRED
+                    java-type CDATA #REQUIRED>
+                    
+<!-- Nome da coluna devolvida pela query -->
+<!ELEMENT column-name (#PCDATA)>
+
+<!--Posição da coluna da query-->
+<!ELEMENT column-position (#PCDATA)>
