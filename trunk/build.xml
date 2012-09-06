@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+	
+<project name="DBMagic" default="all" basedir=".">
+
+	<property name="src" value="SRC" />
+	<property name="config" value="CONFIG" />
+	<property name="template" value="TEMPLATE" />
+	<property name="build" value="BUILD" />
+	<property name="dist" value="${build}/DIST" />
+	<property name="classes" value="${build}/CLASSES" />
+	<property name="lib" value="LIB" />
+	
+	<property file="build.properties" />
+
+	<path id="classpath">
+		<fileset dir="${lib}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<target name="all" depends="ant-jar" />
+
+	<target name="ant-jar" depends="compile">
+		<jar destfile="${dist}/dbmagic.jar">
+			<manifest>
+				<section name="net/java/dbmagic">
+					<attribute name="Implementation-Title" value="SysVision DBMagic"/>
+					<attribute name="Implementation-Version" value="${version.id}"/>
+					<attribute name="Implementation-Vendor" value="SysVision - Consultadoria e Desenvolvimento em Sistemas de Informatica, Lda"/>
+					<attribute name="Implementation-URL" value="http://java.net/projects/dbmagic/"/>
+					<attribute name="Implementation-License" value="Apache Licence, Version 2"/>
+				</section>
+			</manifest>
+			<fileset dir="${classes}"/>
+			<fileset dir="${config}">
+				<include name="*" />
+			</fileset>
+			<fileset dir="${template}">
+				<include name="*" />
+			</fileset>			
+		</jar>
+	</target>
+
+	<target name="compile" depends="init">
+		<javac debug="on" optimize="on" deprecation="on" classpathref="classpath" srcdir="${src}" destdir="${classes}" />
+	</target>
+
+	<target name="init">
+		<tstamp />
+		<mkdir dir="${build}" />
+		<mkdir dir="${dist}" />
+		<mkdir dir="${classes}" />
+	</target>
+
+	<target name="clean_all">
+		<delete dir="${build}" />
+	</target>
+
+</project>
