@@ -26,73 +26,76 @@ public class JDBCUtil {
 		String ret = "String";
 
 		switch (dataType) {
-		case Types.TINYINT:
-			ret = "byte";
-			break;
-		case Types.SMALLINT:
-			ret = "short";
-			break;
-		case Types.INTEGER:
-			ret = "int";
-			break;
-		case Types.BIGINT:
-			ret = "long";
-			break;
-		case Types.REAL:
-			ret = "float";
-			break;
-		case Types.FLOAT:
-		case Types.DOUBLE:
-			ret = "double";
-			break;
-		case Types.DECIMAL:
-		case Types.NUMERIC:
-			if (decimalDigits == 0) {
-				if (columnSize <= 3) {
-					ret = "byte";
-				} else if (columnSize <= 5) {
-					ret = "short";
-				} else if (columnSize <= 10) {
-					ret = "int";
+			case Types.TINYINT:
+				ret = "byte";
+				break;
+			case Types.SMALLINT:
+				ret = "short";
+				break;
+			case Types.INTEGER:
+				ret = "int";
+				break;
+			case Types.BIGINT:
+				ret = "long";
+				break;
+			case Types.REAL:
+				ret = "float";
+				break;
+			case Types.FLOAT:
+			case Types.DOUBLE:
+				ret = "double";
+				break;
+			case Types.DECIMAL:
+			case Types.NUMERIC:
+				if (decimalDigits == 0) {
+					if (columnSize < 3) {
+						ret = "byte";
+					} else if (columnSize < 5) {
+						ret = "short";
+					} else if (columnSize < 10) {
+						ret = "int";
+					} else if (columnSize < 19) {
+						ret = "long";
+					} else {
+						ret = "java.math.BigDecimal";
+					}
 				} else {
-					ret = "long";
+					ret = "java.math.BigDecimal";
 				}
-			} else {
-				ret = "java.math.BigDecimal";
-			}
-			break;
-		case Types.BIT:
-			ret = "boolean";
-			break;
-		case Types.CHAR:
-		case Types.VARCHAR:
-		case Types.LONGVARCHAR:
-			ret = "String";
-			break;
-		case Types.BINARY:
-		case Types.VARBINARY:
-		case Types.LONGVARBINARY:
-			ret = "byte[]";
-			break;
-		case Types.DATE:
-			ret = "java.sql.Date";
-			break;
-		case Types.TIME:
-			ret = "java.sql.Time";
-			break;
-		case Types.TIMESTAMP:
-			ret = "java.sql.Timestamp";
-			break;
+
+				break;
+			case Types.BIT:
+				ret = "boolean";
+				break;
+			case Types.CHAR:
+			case Types.VARCHAR:
+			case Types.LONGVARCHAR:
+				ret = "String";
+				break;
+			case Types.BINARY:
+			case Types.VARBINARY:
+			case Types.LONGVARBINARY:
+				ret = "byte[]";
+				break;
+			case Types.DATE:
+				ret = "java.sql.Date";
+				break;
+			case Types.TIME:
+				ret = "java.sql.Time";
+				break;
+			case Types.TIMESTAMP:
+				ret = "java.sql.Timestamp";
+				break;
 		}
 
 		return ret;
 	}
-	
+
 	public static int getMaxSize(short dataType, int columnSize) {
 		if (dataType == Types.CHAR || dataType == Types.LONGVARCHAR || dataType == Types.VARCHAR) {
 			return columnSize;
 		} else {
 			return 0;
 		}
-	}	
+	}
 }
