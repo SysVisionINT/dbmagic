@@ -587,7 +587,7 @@ public class ${java.getName($entity)}PI {
 
             rs = ps.executeQuery();
 
-            if (!rs.next()) {
+            if (rs.next()) {
                return rs.getLong(1) > 0;
             }
         } catch (SQLException e) {     
