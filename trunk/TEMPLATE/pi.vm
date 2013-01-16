@@ -543,6 +543,69 @@ public class ${java.getName($entity)}PI {
 #if ($model.hasPrimaryKey($entity))    
 
     /**
+     * Permite determinar a existência de um registo na tabela $entity.name através da chave primária
+     * @param obj Instancia da classe ${java.getName($entity)} que representa o registo a procurar
+     * @return true caso exista ou false caso contrário
+     * @throws SQLError Se ocorrer um erro no acesso à Base de Dados
+     * @throws UnexpectedError Se ocorrer um erro inesperado     
+     */
+    public boolean exists(${java.getName($entity)} obj) throws SQLError, UnexpectedError {
+        if (${loggerType}.isDebugEnabled()) {
+            ${loggerType}.debug("exists(" + obj + ")");
+        }
+		            
+        return exists(#set($primeira=1)#foreach ($coluna in ${entity.getPrimaryKey().getColumnList()})#if ($primeira==1)#set($primeira=0)obj.${java.getGetter($coluna)}()#else, obj.${java.getGetter($coluna)}()#end#end);
+    }
+
+    /**
+     * Permite determinar a existência de um registo na tabela $entity.name através da chave primária
+#foreach ($coluna in ${entity.getPrimaryKey().getColumnList()})	     
+     * @param ${java.getInnerName($coluna)} Indica o valor da coluna $coluna.name
+#end	     
+     * @return true caso exista ou false caso contrário
+     * @throws SQLError Se ocorrer um erro no acesso à Base de Dados
+     * @throws UnexpectedError Se ocorrer um erro inesperado     
+     */
+    public boolean exists(#set ($primeira=1)#foreach ($coluna in ${entity.getPrimaryKey().getColumnList()})#if ($primeira==1)${java.getJavaType($coluna)} ${java.getInnerName($coluna)}#set ($primeira=0)#else, ${java.getJavaType($coluna)} ${java.getInnerName($coluna)}#end#end) throws SQLError, UnexpectedError {
+        if (${loggerType}.isDebugEnabled()) {
+            ${loggerType}.debug("exists(" + #set ($primeira=1)#foreach ($coluna in ${entity.getPrimaryKey().getColumnList()})#if ($primeira==1)${java.getInnerName($coluna)}#set ($primeira=0)#else + ", " + ${java.getInnerName($coluna)}#end#end + ")");
+        }
+		            
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            con = DBUtil.getConnection(getDataSource());
+            ps = con.prepareStatement("${sql.getExists($entity)}", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+
+#set($primeira=1)
+#foreach ($coluna in ${entity.getPrimaryKey().getColumnList()})
+            ps.${java.getJavaTypeSetter($coluna)}($primeira, ${java.getInnerName($coluna)});
+#set($primeira=$primeira+1)
+#end
+
+            rs = ps.executeQuery();
+
+            if (!rs.next()) {
+               return rs.getLong(1) > 0;
+            }
+        } catch (SQLException e) {     
+            ${loggerType}.error("SQLException catched while executing exists(" + #set ($primeira=1)#foreach ($coluna in ${entity.getPrimaryKey().getColumnList()})#if ($primeira==1)${java.getInnerName($coluna)}#set ($primeira=0)#else + ", " + ${java.getInnerName($coluna)}#end#end + ")", e);
+            throw new SQLError(e);           
+        } catch (Exception e) {     
+            ${loggerType}.error("Exception catched while executing exists(" + #set ($primeira=1)#foreach ($coluna in ${entity.getPrimaryKey().getColumnList()})#if ($primeira==1)${java.getInnerName($coluna)}#set ($primeira=0)#else + ", " + ${java.getInnerName($coluna)}#end#end + ")", e);
+            throw new UnexpectedError(e);                 
+        } finally {
+            DBUtil.close(rs);
+            DBUtil.close(ps);
+            DBUtil.close(con);
+        }
+        
+        return false;
+    }
+
+    /**
      * Permite obter o registo da tabela $entity.name através da chave primária
 #foreach ($coluna in ${entity.getPrimaryKey().getColumnList()})	     
      * @param ${java.getInnerName($coluna)} Indica o valor da coluna $coluna.name
@@ -576,7 +639,10 @@ public class ${java.getName($entity)}PI {
             rs = ps.executeQuery();
 
             if (!rs.next()) {
-                ${loggerType}.debug("Unable to find record #set ($primeira=1)#foreach ($coluna in ${entity.getPrimaryKey().getColumnList()})#if ($primeira==1)FROM $entity.name WHERE $coluna.name = " + ${java.getInnerName($coluna)} + "#set ($primeira=0)#else AND $coluna.name = " + ${java.getInnerName($coluna)} + "#end#end!");
+                if (${loggerType}.isDebugEnabled()) {
+                    ${loggerType}.debug("Unable to find record #set ($primeira=1)#foreach ($coluna in ${entity.getPrimaryKey().getColumnList()})#if ($primeira==1)FROM $entity.name WHERE $coluna.name = " + ${java.getInnerName($coluna)} + "#set ($primeira=0)#else AND $coluna.name = " + ${java.getInnerName($coluna)} + "#end#end!");
+                }
+
                 throw new RecordNotFoundException(#set ($primeira=1)#foreach ($coluna in ${entity.getPrimaryKey().getColumnList()})#if ($primeira==1)"FROM $entity.name WHERE $coluna.name = " + ${java.getInnerName($coluna)}#set ($primeira=0)#else + " AND $coluna.name = " + ${java.getInnerName($coluna)}#end#end);
             }
 
@@ -635,7 +701,10 @@ public class ${java.getName($entity)}PI {
             int changes = ps.executeUpdate();
             
             if (changes != 1) {
-                ${loggerType}.debug("Unable to find record #set ($primeira=1)#foreach ($coluna in ${entity.getPrimaryKey().getColumnList()})#if ($primeira==1)FROM $entity.name WHERE $coluna.name = " + ${java.getInnerName($coluna)} + "#set ($primeira=0)#else AND $coluna.name = " + ${java.getInnerName($coluna)} + "#end#end!");
+                if (${loggerType}.isDebugEnabled()) {
+                    ${loggerType}.debug("Unable to find record #set ($primeira=1)#foreach ($coluna in ${entity.getPrimaryKey().getColumnList()})#if ($primeira==1)FROM $entity.name WHERE $coluna.name = " + ${java.getInnerName($coluna)} + "#set ($primeira=0)#else AND $coluna.name = " + ${java.getInnerName($coluna)} + "#end#end!");
+                }
+
                 throw new RecordNotFoundException(#set ($primeira=1)#foreach ($coluna in ${entity.getPrimaryKey().getColumnList()})#if ($primeira==1)"FROM $entity.name WHERE $coluna.name = " + ${java.getInnerName($coluna)}#set ($primeira=0)#else + " AND $coluna.name = " + ${java.getInnerName($coluna)}#end#end);
             }
                  
