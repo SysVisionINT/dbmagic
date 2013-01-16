@@ -83,6 +83,17 @@ public class SQLHelper {
 		return buffer.toString();
 	}
 
+	public String getExists(Entity entity) {
+		StringBuffer buffer = new StringBuffer();
+
+		buffer.append(getSelectCount(entity));
+		buffer.append(" WHERE ");
+
+		buffer.append(getPrimaryKeyRestriction(entity));
+
+		return buffer.toString();
+	}
+
 	public String getSelect(Entity entity, boolean distinct) {
 		StringBuffer buffer = new StringBuffer();
 
@@ -90,21 +101,21 @@ public class SQLHelper {
 			buffer.append(entity.getSql());
 		} else {
 			buffer.append("SELECT");
-			
+
 			if (distinct) {
 				buffer.append(" DISTINCT");
 			}
-			
+
 			buffer.append(" * FROM ");
 			buffer.append(entity.getName());
 		}
 
 		return buffer.toString();
 	}
-	
+
 	public String getSelectAll(Entity entity) {
 		return getSelect(entity, false);
-	}	
+	}
 
 	public String getSelectCount(Entity entity) {
 		StringBuffer buffer = new StringBuffer();
@@ -146,28 +157,27 @@ public class SQLHelper {
 
 		return buffer.toString();
 	}
-	
+
 	public String getSelectForQuery(Query query) {
 		return SQLUtil.cleanSQL(query.getSql().trim());
 	}
-	
+
 	public String getSelectCountForQuery(Query query) {
 		return SQLUtil.getSelectCount(getSelectForQuery(query), null);
-	}	
+	}
 
 	public String getSelectForFinder(Finder finder) {
 		if (finder.getWhere().trim().toUpperCase().startsWith("SELECT")) {
 			return SQLUtil.cleanSQL(finder.getWhere().trim());
 		}
-				
+
 		StringBuffer buffer = new StringBuffer();
 
 		String sql = getSelect(finder.getEntity(), finder.isDistinct());
 
 		buffer.append(sql);
 
-		if (!finder.getWhere().trim().toUpperCase().startsWith("WHERE")
-				&& !finder.getWhere().trim().toUpperCase().startsWith("AND") && !finder.getWhere().trim().toUpperCase().startsWith("ORDER")) {
+		if (!finder.getWhere().trim().toUpperCase().startsWith("WHERE") && !finder.getWhere().trim().toUpperCase().startsWith("AND") && !finder.getWhere().trim().toUpperCase().startsWith("ORDER")) {
 			if (hasWhere(sql)) {
 				buffer.append(" AND");
 			} else {
@@ -180,12 +190,12 @@ public class SQLHelper {
 
 		return SQLUtil.cleanSQL(buffer.toString());
 	}
-	
+
 	public String getTableGeneratorInsert(Entity entity) {
 		StringBuffer buffer = new StringBuffer();
 
 		KeyGenerator generator = entity.getPrimaryKey().getKeyGenerator();
-		
+
 		buffer.append("INSERT INTO ");
 		buffer.append(generator.getProperty(Property.TABLE_NAME).getValue());
 		buffer.append(" (");
@@ -195,10 +205,10 @@ public class SQLHelper {
 		buffer.append(") VALUES ('");
 		buffer.append(entity.getName());
 		buffer.append("',1)");
-		
+
 		return buffer.toString();
 	}
-		
+
 	public String getSelectKeyGenerator(Entity entity) {
 		StringBuffer buffer = new StringBuffer();
 
@@ -302,7 +312,7 @@ public class SQLHelper {
 
 		return false;
 	}
-	
+
 	public String getOperationSQL(Operation operation) {
 		return SQLUtil.cleanSQL(operation.getSql().trim());
 	}
