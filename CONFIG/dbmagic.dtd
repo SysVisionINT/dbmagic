@@ -142,11 +142,13 @@ return-type - Tipo de retorno que a pesquisa deve devolver
 		     Quando se indica que o return-type é void será adicionado um parametro (callback)
 distinct-rows - Indica que só devem ser devolvidas linhas distintas
 with-limits - Indica que a pesquisa deve permitir indicar intervalos de dados (exemplo: 100 registos a partir do 1001)
+dirty-reads - Se "true" indica que o tipo de isolamento da transação deve ser TRANSACTION_READ_UNCOMMITTED 
   -->
 <!ATTLIST finder name CDATA #REQUIRED
                  return-type (Object|Collection|void) "Collection"
                  distinct-rows (true|false) "false"
-                 with-limits (true|false) "false">
+                 with-limits (true|false) "false"
+                 dirty-reads (true|false) "false">
                  
 <!--Clausa WHERE a usar para a pesquisa
 

@@ -172,6 +172,10 @@ public class ModelHandler extends SimpleHandler {
 			if (attributes.getValue("distinct-rows") != null) {
 				ret.setDistinct(attributes.getValue("distinct-rows").equals("true"));
 			}
+			
+			if (attributes.getValue("dirty-reads") != null) {
+				ret.setDirtyReads(attributes.getValue("dirty-reads").equals("true"));
+			}
 
 			if (attributes.getValue("return-type") != null) {
 				if (!Finder.isValidReturnType(attributes.getValue("return-type"))) {

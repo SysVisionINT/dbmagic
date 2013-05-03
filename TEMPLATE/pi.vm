@@ -1059,11 +1059,19 @@ public class ${java.getName($entity)}PI {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
+#if ($finder.dirtyReads)
+        Integer isolation = null;
+#end        
         
         List#if(${java6.booleanValue()})<${java.getName($entity)}>#end list = new ArrayList#if(${java6.booleanValue()})<${java.getName($entity)}>#end();
 
         try {
             con = DBUtil.getConnection(getDataSource());
+#if ($finder.dirtyReads)
+            isolation = new Integer(con.getTransactionIsolation());
+            con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+
+#end            
             ps = con.prepareStatement("${sql.getSelectForFinder($finder)}", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 
 #set($primeira=1)
@@ -1094,6 +1102,14 @@ public class ${java.getName($entity)}PI {
             ${loggerType}.error("Exception catched while executing ${finder.name}(#set ($primeira=1)#foreach ($parametro in ${finder.getUniqueParameterList()})#if ($primeira==1)" + ${parametro.name} + "#set ($primeira=0)#else, " + ${parametro.name} + "#end#end)", e);
             throw new UnexpectedError(e);                                     
         } finally {
+#if ($finder.dirtyReads)
+            if (isolation != null) {
+            	try {
+            		con.setTransactionIsolation(isolation.intValue());
+            	} catch (SQLException ei) {}
+            }
+
+#end        
             DBUtil.close(rs);
             DBUtil.close(ps);
             DBUtil.close(con);
@@ -1122,11 +1138,19 @@ public class ${java.getName($entity)}PI {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
+#if ($finder.dirtyReads)
+        Integer isolation = null;
+#end         
         
         List#if(${java6.booleanValue()})<${java.getName($entity)}>#end list = new ArrayList#if(${java6.booleanValue()})<${java.getName($entity)}>#end();
 
         try {
             con = DBUtil.getConnection(getDataSource());
+#if ($finder.dirtyReads)
+            isolation = new Integer(con.getTransactionIsolation());
+            con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+
+#end               
             ps = con.prepareStatement("${sql.getSelectForFinder($finder)}", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.setMaxRows(skipRows + maxRows);
 
@@ -1160,6 +1184,14 @@ public class ${java.getName($entity)}PI {
             ${loggerType}.error("Exception catched while executing ${finder.name}(#set ($primeira=1)#foreach ($parametro in ${finder.getUniqueParameterList()})#if ($primeira==1)" + ${parametro.name} + "#set ($primeira=0)#else, " + ${parametro.name} + "#end#end#if($primeira==0),#end " + skipRows + ", " + maxRows + ")", e);
             throw new UnexpectedError(e);                                    
         } finally {
+#if ($finder.dirtyReads)
+            if (isolation != null) {
+            	try {
+            		con.setTransactionIsolation(isolation.intValue());
+            	} catch (SQLException ei) {}
+            }
+
+#end           
             DBUtil.close(rs);
             DBUtil.close(ps);
             DBUtil.close(con);
@@ -1187,12 +1219,20 @@ public class ${java.getName($entity)}PI {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
+#if ($finder.dirtyReads)
+        Integer isolation = null;
+#end        
         
         BeanUtil callbackUtil = new BeanUtil(callback);
         Object[] callbackArgs = new Object[1];
 
         try {
             con = DBUtil.getConnection(getDataSource());
+#if ($finder.dirtyReads)
+            isolation = new Integer(con.getTransactionIsolation());
+            con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+
+#end            
             ps = con.prepareStatement("${sql.getSelectForFinder($finder)}", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             
 #set($primeira=1)
@@ -1224,6 +1264,14 @@ public class ${java.getName($entity)}PI {
             ${loggerType}.error("Exception catched while trying to execute method public void process(${java.getName($entity)} obj) on object " + callback.getClass().getName() + " in finder ${finder.name}(...#foreach ($parametro in ${finder.getUniqueParameterList()}), " + ${parametro.name} + "#end)", e);
             throw new UnexpectedError(e);             
         } finally {
+#if ($finder.dirtyReads)
+            if (isolation != null) {
+            	try {
+            		con.setTransactionIsolation(isolation.intValue());
+            	} catch (SQLException ei) {}
+            }
+
+#end         
             DBUtil.close(rs);
             DBUtil.close(ps);
             DBUtil.close(con);
@@ -1250,12 +1298,20 @@ public class ${java.getName($entity)}PI {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
+#if ($finder.dirtyReads)
+        Integer isolation = null;
+#end        
         
         BeanUtil callbackUtil = new BeanUtil(callback);
         Object[] callbackArgs = new Object[1];
 
         try {
             con = DBUtil.getConnection(getDataSource());
+#if ($finder.dirtyReads)
+            isolation = new Integer(con.getTransactionIsolation());
+            con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+
+#end             
             ps = con.prepareStatement("${sql.getSelectForFinder($finder)}", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.setMaxRows(skipRows + maxRows);
 
@@ -1290,6 +1346,14 @@ public class ${java.getName($entity)}PI {
             ${loggerType}.error("Exception catched while trying to execute method public void process(${java.getName($entity)} obj) on object " + callback.getClass().getName() + " in finder ${finder.name}(...#foreach ($parametro in ${finder.getUniqueParameterList()}), " + ${parametro.name} + "#end, " + skipRows + ", " + maxRows + ")", e);
             throw new UnexpectedError(e);             
         } finally {
+#if ($finder.dirtyReads)
+            if (isolation != null) {
+            	try {
+            		con.setTransactionIsolation(isolation.intValue());
+            	} catch (SQLException ei) {}
+            }
+
+#end        
             DBUtil.close(rs);
             DBUtil.close(ps);
             DBUtil.close(con);
@@ -1314,11 +1378,19 @@ public class ${java.getName($entity)}PI {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
+#if ($finder.dirtyReads)
+        Integer isolation = null;
+#end        
         
         ${java.getName($entity)} obj = null;
 
         try {
             con = DBUtil.getConnection(getDataSource());
+#if ($finder.dirtyReads)
+            isolation = new Integer(con.getTransactionIsolation());
+            con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+
+#end            
             ps = con.prepareStatement("${sql.getSelectForFinder($finder)}", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 
 #set($primeira=1)
@@ -1349,6 +1421,14 @@ public class ${java.getName($entity)}PI {
             ${loggerType}.error("Exception catched while executing ${finder.name}(#set ($primeira=1)#foreach ($parametro in ${finder.getUniqueParameterList()})#if ($primeira==1)" + ${parametro.name} + "#set ($primeira=0)#else, " + ${parametro.name} + "#end#end)", e);
             throw new UnexpectedError(e);                          
         } finally {
+#if ($finder.dirtyReads)
+            if (isolation != null) {
+            	try {
+            		con.setTransactionIsolation(isolation.intValue());
+            	} catch (SQLException ei) {}
+            }
+
+#end        
             DBUtil.close(rs);
             DBUtil.close(ps);
             DBUtil.close(con);

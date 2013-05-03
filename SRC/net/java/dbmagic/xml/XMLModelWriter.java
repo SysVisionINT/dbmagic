@@ -278,6 +278,10 @@ public class XMLModelWriter {
 		if (finder.isLimited()) {
 			out.print(" with-limits=\"true\"");
 		}
+		
+		if (finder.isDirtyReads()) {
+			out.print(" dirty-reads=\"true\"");
+		}		
 
 		out.println(">");
 

@@ -32,6 +32,7 @@ public class Finder implements AceptParameters{
 	private String returnType = COLLECTION;
 	private boolean distinct = false;
 	private boolean limited = false;
+	private boolean dirtyReads = false;
 	private String where = null;
 	private Entity entity = null;
 	private List parameterList = new ArrayList();
@@ -78,6 +79,14 @@ public class Finder implements AceptParameters{
 
 	public void setLimited(boolean limit) {
 		this.limited = limit;
+	}
+
+	public boolean isDirtyReads() {
+		return dirtyReads;
+	}
+	
+	public void setDirtyReads(boolean dirtyReads) {
+		this.dirtyReads = dirtyReads;
 	}
 
 	public void setReturnType(String string) {
