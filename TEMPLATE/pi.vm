@@ -333,7 +333,7 @@ public class ${java.getName($entity)}PI {
             ret.${java.getSetter($entity.versionControlColumn.column)}(1);
 #end            
 #if ($model.isKeyGeneratorNative($entity))
-            ${entity.primaryKey.keyGenerator.column.javaType} key = (${entity.primaryKey.keyGenerator.column.javaType})NativePrimaryKeyUtil.getPrimaryKey(con);
+            ${entity.primaryKey.keyGenerator.column.javaType} key = (${entity.primaryKey.keyGenerator.column.javaType})NativePrimaryKeyUtil.getPrimaryKey(con, TABLE_NAME);
             
             if (key == NativePrimaryKeyUtil.KEY_NOT_FOUND) {
                 key = getPrimaryKeyValue(ret);

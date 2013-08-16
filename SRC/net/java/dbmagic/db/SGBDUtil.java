@@ -28,7 +28,7 @@ import net.java.sjtools.db.DBUtil;
 
 import org.apache.tools.ant.BuildException;
 
-public class SGBDUtil extends DBUtil{
+public class SGBDUtil extends DBUtil {
 	public static final String SAPDB = "SAPDB";
 	public static final String MCKOI = "MCKOI";
 	public static final String ORACLE = "ORACLE";
@@ -37,11 +37,14 @@ public class SGBDUtil extends DBUtil{
 	public static final String DERBY = "DERBY";
 	public static final String HSQL = "HSQL";
 	public static final String H2 = "H2";
+	public static final String POSTGRESQL = "POSTGRESQL";
 
 	public static DBDialect getDialect(String dbmsName) {
 		String dbms = dbmsName.toUpperCase();
 		
-		if (dbms.equals(INFORMIX)) {
+		if (dbms.equals(POSTGRESQL)) {
+			return new PostgreSQLDialect();
+		} else if (dbms.equals(INFORMIX)) {
 			return new InformixDialect();
 		} else if (dbms.equals(ORACLE)) {
 			return new OracleDialect();
@@ -65,7 +68,9 @@ public class SGBDUtil extends DBUtil{
 	public static DBDialect getDialect(Connection con) throws SQLException {
 		DBMS dbms = DBMSUtil.getDBMS(con);
 
-		if (dbms.equals(DBMS.DBMS_INFORMIX)) {
+		if (dbms.equals(DBMS.DBMS_POSTGRESQL)) {
+			return new PostgreSQLDialect();
+		} else if (dbms.equals(DBMS.DBMS_INFORMIX)) {
 			return new InformixDialect();
 		} else if (dbms.equals(DBMS.DBMS_ORACLE)) {
 			return new OracleDialect();
@@ -87,11 +92,15 @@ public class SGBDUtil extends DBUtil{
 	}
 	
 	public static Connection getConnection(String driver, String url,
-			String user, String password) throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SQLException {
+			String user, String password) throws SQLException {
 
-		Class.forName(driver).newInstance();
+		try {
+			Class.forName(driver).newInstance();
+		} catch (Exception e) {
+			throw new SQLException(e);
+		}
 
 		return DriverManager.getConnection(url, user, password);
 	}	
+	
 }
