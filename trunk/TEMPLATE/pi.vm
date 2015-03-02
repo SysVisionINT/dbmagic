@@ -402,7 +402,7 @@ public class ${java.getName($entity)}PI {
             int changes = ps.executeUpdate();
             
             if (changes != 1) {
-                ${loggerType}.error("remove(" + obj + ") affected more than one row");
+                ${loggerType}.error("remove(" + obj + ") did not delete only one row. Rows affected: " + changes);
                 throw new RecordUpdateException(RecordUpdateException.DELETE, 1, changes);
             }
         } catch (RecordUpdateException e) {     
@@ -510,7 +510,7 @@ public class ${java.getName($entity)}PI {
             int changes = ps.executeUpdate();
             
             if (changes != 1) {
-                ${loggerType}.error("update(" + obj + ") affected more than one row");
+                ${loggerType}.error("update(" + obj + ") did not update only one row. Rows affected: " + changes);
                 throw new RecordUpdateException(RecordUpdateException.UPDATE, 1, changes);
             }
             

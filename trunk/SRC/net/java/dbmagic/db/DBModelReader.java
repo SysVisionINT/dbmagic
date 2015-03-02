@@ -39,10 +39,10 @@ import net.java.dbmagic.model.PrimaryKey;
 
 
 public class DBModelReader {
-	private static final String[] TABLE_TYPES = { "TABLE" };
 
-	public static Model read(String driver, String url, String user, String password, String dbSchema, List tableList)
-			throws Exception {
+	private static final String[] TABLE_TYPES = { "TABLE", "VIEW" };
+
+	public static Model read(String driver, String url, String user, String password, String dbSchema, List tableList) throws Exception {
 		Model shm = new Model();
 		shm.setDescription("Generated from " + url + " on " + new Timestamp(System.currentTimeMillis()));
 
@@ -66,8 +66,7 @@ public class DBModelReader {
 				tableName = rs.getString("TABLE_NAME");
 
 				if (selectedTable(tableName, tableList)) {
-					shm.addEntity(processTable(dmd, rs.getString("TABLE_CAT"), dbSchema, tableName,
-							rs.getString("TABLE_TYPE")));
+					shm.addEntity(processTable(dmd, rs.getString("TABLE_CAT"), dbSchema, tableName, rs.getString("TABLE_TYPE")));
 				}
 			}
 		} finally {
@@ -87,22 +86,21 @@ public class DBModelReader {
 		if (tableList == null) {
 			return true;
 		}
-		
+
 		if (tableList.isEmpty()) {
 			return true;
 		}
-		
+
 		for (Iterator i = tableList.iterator(); i.hasNext();) {
-			if (tableName.equalsIgnoreCase((String) i.next())){
+			if (tableName.equalsIgnoreCase((String) i.next())) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
-	private static Entity processTable(DatabaseMetaData dmd, String catalog, String schema, String tableName,
-			String type) throws SQLException {
+	private static Entity processTable(DatabaseMetaData dmd, String catalog, String schema, String tableName, String type) throws SQLException {
 		Entity table = new Entity();
 		table.setName(tableName);
 		table.setReadOnly(isView(type));
@@ -140,7 +138,7 @@ public class DBModelReader {
 			ForeignKey fk = null;
 			ForeignColumn fkColumn = null;
 
-			try {				
+			try {
 				rs = dmd.getImportedKeys(catalog, schema, tableName);
 
 				while (rs.next()) {
@@ -171,9 +169,7 @@ public class DBModelReader {
 				rs = dmd.getIndexInfo(catalog, schema, tableName, false, true);
 
 				while (rs.next()) {
-					if ((rs.getShort("TYPE") != DatabaseMetaData.tableIndexStatistic)
-							&& (table.getPrimaryKey() == null || !table.getPrimaryKey().getName().equals(
-									rs.getString("INDEX_NAME")))) {
+					if ((rs.getShort("TYPE") != DatabaseMetaData.tableIndexStatistic) && (table.getPrimaryKey() == null || !table.getPrimaryKey().getName().equals(rs.getString("INDEX_NAME")))) {
 						if (index == null || !index.getName().equals(rs.getString("INDEX_NAME"))) {
 							index = new Index();
 							index.setName(rs.getString("INDEX_NAME"));
@@ -202,8 +198,7 @@ public class DBModelReader {
 		return type.equals("VIEW");
 	}
 
-	private static PrimaryKey processPK(DatabaseMetaData dmd, String catalog, String schema, String tableName)
-			throws SQLException {
+	private static PrimaryKey processPK(DatabaseMetaData dmd, String catalog, String schema, String tableName) throws SQLException {
 		PrimaryKey key = new PrimaryKey();
 
 		ResultSet rs = null;
@@ -235,8 +230,7 @@ public class DBModelReader {
 		}
 	}
 
-	private static Column getColumn(DatabaseMetaData dmd, String catalog, String schema, String tableName,
-			String columnName) throws SQLException {
+	private static Column getColumn(DatabaseMetaData dmd, String catalog, String schema, String tableName, String columnName) throws SQLException {
 		Column column = new Column();
 
 		ResultSet rs = null;
@@ -246,8 +240,7 @@ public class DBModelReader {
 
 			while (rs.next()) {
 				column.setName(rs.getString("COLUMN_NAME"));
-				column.setJavaType(JDBCUtil.getJavaType(rs.getShort("DATA_TYPE"), rs.getInt("COLUMN_SIZE"), rs
-						.getInt("DECIMAL_DIGITS")));
+				column.setJavaType(JDBCUtil.getJavaType(rs.getShort("DATA_TYPE"), rs.getInt("COLUMN_SIZE"), rs.getInt("DECIMAL_DIGITS")));
 				column.setMaxSize(JDBCUtil.getMaxSize(rs.getShort("DATA_TYPE"), rs.getInt("COLUMN_SIZE")));
 				column.setNullable(getColumnNullable(rs.getString("IS_NULLABLE")));
 			}
